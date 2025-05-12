@@ -8,6 +8,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 public class ProveedorAgregarPanel extends JPanel {
@@ -94,6 +95,16 @@ public class ProveedorAgregarPanel extends JPanel {
 
 		
 	}
+	
+	public void limpiar() {
+		txtNombre.setText("");
+		txtApellido.setText("");
+		txtCelular.setText("");
+		txtDireccion.setText("");
+		txtDescripcion.setText("");
+	}
+	
+	
 
 
 	public JTextField getTxtNombre() {

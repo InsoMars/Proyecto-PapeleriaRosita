@@ -4,15 +4,25 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.Printable;
 
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+
+import co.edu.unbosque.model.ProveedorDTO;
+import co.edu.unbosque.model.persistence.ProveedorDAO;
 import co.edu.unbosque.view.View;
 
 public class Controller implements ActionListener {
 
 	private View gui;
+	private ProveedorDTO proveedorDTO;
+	private ProveedorDAO proveedorDAO;
 
 	public Controller() {
 
 		gui = new View(this);
+		proveedorDTO= new ProveedorDTO();
+		proveedorDAO= new ProveedorDAO();
+		
 
 	}
 
@@ -186,6 +196,7 @@ public class Controller implements ActionListener {
 		if (evento.getActionCommand().equals(gui.getProveedorMenuFrame().getProveedorMenuPanel().VerListaProveedor)) {
 
 			gui.getProveedorListaFrame().setVisible(true);
+			gui.getProveedorListaFrame().getProveedorListaPanel().actualizarTabla();
 			gui.getProveedorMenuFrame().setVisible(false);
 
 		}
@@ -206,6 +217,27 @@ public class Controller implements ActionListener {
 
 		if (evento.getActionCommand()
 				.equals(gui.getProveedorAgregarFrame().getProveedorAgregarPanel().agregarProveedor)) {
+			
+			
+			try {
+				proveedorDTO.setNombre(gui.getProveedorAgregarFrame().getProveedorAgregarPanel().getTxtNombre().getText());
+				proveedorDTO.setApellido(gui.getProveedorAgregarFrame().getProveedorAgregarPanel().getTxtApellido().getText());
+				proveedorDTO.setCelular(gui.getProveedorAgregarFrame().getProveedorAgregarPanel().getTxtCelular().getText());
+				proveedorDTO.setDireccion(gui.getProveedorAgregarFrame().getProveedorAgregarPanel().getTxtDireccion().getText());
+				proveedorDTO.setDescripcion(gui.getProveedorAgregarFrame().getProveedorAgregarPanel().getTxtDescripcion().getText());
+				if(proveedorDAO.insertarProveedor(proveedorDTO)) {
+					gui.getProveedorAgregarFrame().getProveedorAgregarPanel().limpiar();
+					JOptionPane.showMessageDialog(null, "SE AGREGO EL PROVEEDOR CORRECTAMENTE");
+				}else {
+					JOptionPane.showMessageDialog(null, "ERRROR");
+
+					
+				}
+				
+				
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "ERRROR");
+			}
 
 		}
 		if (evento.getActionCommand()
@@ -216,7 +248,7 @@ public class Controller implements ActionListener {
 
 		}
 
-		// 1.2 VER LISTA DE VENDEDORES y MODIFICAR VENDEDOR
+		// 1.2 VER LISTA DE VENDEDORES y MODIFICAR PROVEEDOR
 
 		if (evento.getActionCommand().equals(gui.getProveedorListaFrame().getProveedorListaPanel().buscarProveedor)) {
 
@@ -224,9 +256,63 @@ public class Controller implements ActionListener {
 
 		if (evento.getActionCommand()
 				.equals(gui.getProveedorListaFrame().getProveedorListaPanel().ModificarProveedor)) {
+			
+			 ProveedorDTO seleccionado = gui.getProveedorListaFrame().getProveedorListaPanel().getProveedorSeleccionado();
+			    
+			    if (seleccionado == null) {
+			        JOptionPane.showMessageDialog(null, "Selecciona un proveedor para modificar");
+			        return;
+			    }
+
+			    // Crear campos de entrada prellenados
+			    JTextField nombreField = new JTextField(seleccionado.getNombre());
+			    JTextField apellidoField = new JTextField(seleccionado.getApellido());
+			    JTextField celularField = new JTextField(seleccionado.getCelular());
+			    JTextField direccionField = new JTextField(seleccionado.getDireccion());
+			    JTextField descripcionField = new JTextField(seleccionado.getDescripcion());
+
+			    Object[] mensaje = {
+			        "Nombre:", nombreField,
+			        "Apellido:", apellidoField,
+			        "Celular:", celularField,
+			        "Dirección:", direccionField,
+			        "Descripción:", descripcionField
+			    };
+
+			    int opcion = JOptionPane.showConfirmDialog(null, mensaje, "Modificar Proveedor", JOptionPane.OK_CANCEL_OPTION);
+
+			    if (opcion == JOptionPane.OK_OPTION) {
+			        seleccionado.setNombre(nombreField.getText());
+			        seleccionado.setApellido(apellidoField.getText());
+			        seleccionado.setCelular(celularField.getText());
+			        seleccionado.setDireccion(direccionField.getText());
+			        seleccionado.setDescripcion(descripcionField.getText());
+
+			        if (proveedorDAO.actualizarProveedor(seleccionado)) {
+			            gui.getProveedorListaFrame().getProveedorListaPanel().actualizarTabla();
+			            JOptionPane.showMessageDialog(null, "Proveedor modificado con éxito");
+			        } else {
+			            JOptionPane.showMessageDialog(null, "Error al modificar el proveedor");
+			        }
+			    }
 
 		}
 		if (evento.getActionCommand().equals(gui.getProveedorListaFrame().getProveedorListaPanel().eliminarProveedor)) {
+			
+			if (evento.getActionCommand().equals(gui.getProveedorListaFrame().getProveedorListaPanel().eliminarProveedor)) {
+			    int id = gui.getProveedorListaFrame().getProveedorListaPanel().getProveedorSeleccionadoId();
+			    if (id != -1) {
+			        if (proveedorDAO.eliminarProveedor(id)) {
+			            gui.getProveedorListaFrame().getProveedorListaPanel().actualizarTabla();
+			            JOptionPane.showMessageDialog(null, "Se eliminó correctamente el proveedor");
+			        } else {
+			            JOptionPane.showMessageDialog(null, "Error al eliminar el proveedor");
+			        }
+			    } else {
+			        JOptionPane.showMessageDialog(null, "Por favor, seleccione un proveedor para eliminar");
+			    }
+			}
+
 
 		}
 		if (evento.getActionCommand()
